@@ -1,0 +1,54 @@
+
+
+
+docker network create app-tier --driver bridge
+
+
+docker run -d --name zookeeper-server \
+    --network app-tier \
+    -e ALLOW_ANONYMOUS_LOGIN=yes \
+    bitnami/zookeeper:latest
+
+
+docker run -d --name kafka-server \
+    --network app-tier \
+    -e ALLOW_PLAINTEXT_LISTENER=yes \
+    -e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 \
+    bitnami/kafka:latest
+
+
+docker run -it --rm \
+    --network app-tier \
+    -e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 \
+    bitnami/kafka:latest kafka-topics.sh --list  --bootstrap-server kafka-server:9092       
+    
+    
+    
+    
+    
+    
+    
+    
+docker-compose up -d
+
+
+docker exec broker \
+kafka-topics --bootstrap-server broker:9092 \
+             --list
+
+docker exec broker \
+kafka-topics --bootstrap-server broker:9092 \
+             --create \
+             --topic quickstart
+             
+             
+             
+docker exec --interactive --tty broker kafka-console-producer --bootstrap-server broker:9092 --topic quickstart
+                       
+                       
+                       
+docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 --topic quickstart --from-beginning
+                                                                
+                                                                
+                                                                
+docker-compose down                                                                

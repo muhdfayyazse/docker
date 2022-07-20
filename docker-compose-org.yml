@@ -1,0 +1,65 @@
+version: '3'
+
+
+services:
+    redis:
+      image: redis
+      container_name: redis-server
+      ports:
+        - 6379:6379
+      volumes:
+        - /home/muhdfayyaz/learning/docker/dockercompose/data/redis:/data
+      command: redis-server --appendonly yes
+      networks:
+        webnet:
+          ipv4_address: 172.18.0.2
+
+    mongodb:
+        image: mongo
+        container_name: mongo-server
+        environment:
+          - MONGO_DATA_DIR=/data/db
+          - MONGO_LOG_DIR=/dev/null
+        volumes:
+          - /home/muhdfayyaz/learning/docker/dockercompose/data/mongo:/data/db
+        ports:
+            - 27017:27017
+        command: mongod --smallfiles --logpath=/dev/null # --quiet 
+        networks:
+          webnet:
+            ipv4_address: 172.18.0.3
+
+    mariadb:
+        image: mariadb/server:10.3
+        container_name: mariadb-server
+        environment:
+          - MYSQL_ROOT_PASSWORD=root
+        ports:
+            - 3306:3306
+        volumes:
+          - /home/muhdfayyaz/learning/docker/dockercompose/data/mariadb:/var/lib/mysql     
+        networks:
+          webnet:
+            ipv4_address: 172.18.0.4
+    wildfly:        
+        image: jboss/wildfly
+        container_name: wildfly-server
+        ports:
+          - "48080:8080"
+        volumes:
+          - /home/muhdfayyaz/learning/docker/dockercompose/data/wildfly:/opt/jboss/wildfly/standalone/deployments/:rw
+        environment:
+          - DEBUG=true
+        networks:
+          webnet:
+            ipv4_address: 172.18.0.5
+
+       
+networks:
+    webnet:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.18.0.0/24
+
